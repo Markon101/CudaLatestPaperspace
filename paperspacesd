@@ -1,0 +1,35 @@
+# ------------- ALL THIS REQUIRED FOR PAPERSPACE -------------
+FROM python:3.9.10
+
+ENV APP_HOME /
+WORKDIR $APP_HOME
+
+# Install base utilities
+RUN apt-get update && \
+    # apt-get install -y build-essentials  && \
+    apt-get install -y wget && \
+    apt-get clean && \
+    apt upgrade -y && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install miniconda
+ENV CONDA_DIR /opt/conda
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
+    /bin/bash ~/miniconda.sh -b -p /opt/conda
+
+# Put conda in path so we can use conda activate
+ENV PATH=$CONDA_DIR/bin:$PATH
+
+RUN pip install -U pip -qqq
+
+RUN conda install -y -c conda-forge jupyterlab
+
+# ------------- FROM HERE ON IS MY SD and torch 2 SETUP -------------
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.0-1_all.deb
+RUN sudo dpkg -i cuda-keyring_1.0-1_all.deb
+RUN sudo apt-get update
+RUN sudo apt-get install cuda -y
+RUN pip install --pre torch
+RUN pip install opencv-python ipywidgets
+RUN apt update && apt install -y ffmpeg wget2 rsync
+RUN apt-get install -y libxrender-dev
